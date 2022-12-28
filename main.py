@@ -1,6 +1,7 @@
 import pygame
 import random
 import math
+from pygame import mixer
 
 # ! Inicializar Pygame
 pygame.init()
@@ -67,10 +68,22 @@ fuente = pygame.font.Font("freesansbold.ttf", 32)
 textoX = 10
 textY = 10
 
+# ! Texto final del juego
+
+fuenteFinal = pygame.font.Font("freesansbold.ttf", 40)
+
+def textoFinal():
+    miFuenteFinal = fuenteFinal.render("JUEGO TERMINADO", True, (255, 255, 255))
+    pantalla.blit(miFuenteFinal, (220, 280))
+
 # ! Funcion mostrar Puntaje
 def mostrarPuntaje(x, y):
     texto = fuente.render(f"Puntaje: {puntaje}", True, (255, 255, 255))
     pantalla.blit(texto, (x, y))
+
+# ! Agregar Musica
+mixer.music.load("MusicaFondo.mp3")
+mixer.music.play(-1)
 
 # ! Funcion Jugador
 def jugador(x, y):
@@ -124,6 +137,8 @@ while seEjecuta:
                 # La nave se mueve a la derecha cuando presione la flecha
                 jugador_x_cambio = 2
             if evento.key == pygame.K_SPACE:
+                sonidoBala = mixer.Sound("disparo.mp3")
+                sonidoBala.play()
                 if not balaVisible:
                     balaX = jugadorX
                     dispararBala(balaX, balaY)
@@ -146,6 +161,13 @@ while seEjecuta:
         
     # ? Modificar la ubicacion del enemigo
     for e in range(cantidadEnemigos):
+        
+        # ! Fin del juego
+        if enemigoY[e] > 500:
+            for k in range(cantidadEnemigos):
+                enemigoY[k] = 1000
+            textoFinal()
+            break
         enemigoX[e] += enemigo_x_cambio[e]
         
         # ! Mantener dentro de los bordes al enemigo
@@ -163,6 +185,8 @@ while seEjecuta:
         # ! Colision
         coli = colisiones(enemigoX[e], enemigoY[e], balaX, balaY)
         if coli:
+            sonidoColision = mixer.Sound("golpe.mp3")
+            sonidoColision.play()
             balaY = 500
             balaVisible = False
             puntaje += 1
