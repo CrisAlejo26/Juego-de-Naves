@@ -15,7 +15,7 @@ pygame.display.set_caption("Invasion Espacial")
 icono = pygame.image.load("ovni_icono.png")
 # Enviamos el icono a la ventada
 pygame.display.set_icon(icono)
-
+fondo = pygame.image.load("fondo.png")
 
 # ! Jugador
 # Cargo la imagen
@@ -51,7 +51,7 @@ def enemigo(x, y):
 seEjecuta = True
 while seEjecuta:
     # Relleno de pantalla
-    pantalla.fill((134, 200, 188))
+    pantalla.blit(fondo, (0, 0))
     
     # Realiza un recorrido validando los eventos en la ventanda
     for evento in pygame.event.get():
