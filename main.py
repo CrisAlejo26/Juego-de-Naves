@@ -22,7 +22,7 @@ pygame.display.set_icon(icono)
 jugadorPrincipal = pygame.image.load("NavePrincipal.png")
 # Cargo las coordenadas
 jugadorX = 368
-jugadorY = 534
+jugadorY = 500
 jugador_x_cambio = 0
 
 # ! Enemigo
@@ -31,7 +31,10 @@ enemigoMalvado = pygame.image.load("enemigo.png")
 # Cargo las coordenadas maximas para el enemigo
 enemigoX = random.randint(0, 736)
 enemigoY = random.randint(50, 200)
-enemigo_x_cambio = 0
+# Se devuelve cuando toca los bordes
+enemigo_x_cambio = 0.3
+# Lo que va a ir bajando
+enemigo_y_cambio = 50
 
 # ! Funcion Jugador
 def jugador(x, y):
@@ -48,7 +51,7 @@ def enemigo(x, y):
 seEjecuta = True
 while seEjecuta:
     # Relleno de pantalla
-    pantalla.fill((205, 144, 227))
+    pantalla.fill((134, 200, 188))
     
     # Realiza un recorrido validando los eventos en la ventanda
     for evento in pygame.event.get():
@@ -83,9 +86,25 @@ while seEjecuta:
     elif jugadorX >= 742:
         jugadorX = 742
     
+        
+    # ? Modificar la ubicacion del enemigo
+    enemigoX += enemigo_x_cambio
+    
+    # ! Mantener dentro de los bordes al enemigo
+    # Si el enemigo llega a posicion 0, entonces se devuelve
+    if enemigoX <= 0:
+        enemigo_x_cambio = 0.3
+        # Baja el valor que tiene enemigo_y_cambio
+        enemigoY += enemigo_y_cambio 
+    # Si el enemigo llega a posicion 736, entonces se devuelve
+    elif enemigoX >= 736:
+        enemigo_x_cambio = -0.3
+        # Baja el valor que tiene enemigo_y_cambio
+        enemigoY += enemigo_y_cambio 
+    
     jugador(jugadorX, jugadorY)
     enemigo(enemigoX, enemigoY)
     
-    # ! Actualizar
+    # ! Actualizar siempre al final del ciclo
     pygame.display.update()
 
