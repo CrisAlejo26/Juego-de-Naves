@@ -32,9 +32,21 @@ enemigoMalvado = pygame.image.load("enemigo.png")
 enemigoX = random.randint(0, 736)
 enemigoY = random.randint(50, 200)
 # Se devuelve cuando toca los bordes
-enemigo_x_cambio = 0.3
+enemigo_x_cambio = 2
 # Lo que va a ir bajando
 enemigo_y_cambio = 50
+
+# ! Bala
+# Cargo la imagen
+imgBala = pygame.image.load("bala.png")
+# Cargo las coordenadas maximas para la bala
+balaX = 0
+balaY = 500
+# Se devuelve cuando toca los bordes
+bala_x_cambio = 0
+# Velocidad de la bala
+bala_y_cambio = 2
+balaVisible = False
 
 # ! Funcion Jugador
 def jugador(x, y):
@@ -45,6 +57,14 @@ def jugador(x, y):
 def enemigo(x, y):
     # Colocamos el enemigo en pantalla
     pantalla.blit(enemigoMalvado, (x, y))
+
+# ! Funcion disparar bala
+def dispararBala(x, y):
+    # la bala debe ser visible
+    global balaVisible
+    balaVisible = True
+    # Esto se hace para que la bala salga desde la mitad de la nave
+    pantalla.blit(imgBala, (x + 16, y + 10))
 
 
 # ! Loop del juego
@@ -65,11 +85,15 @@ while seEjecuta:
             # Si presiona la tecla flecha izquierda
             if evento.key == pygame.K_LEFT:
                 # La nave se mueve a la izquierda cuando presione la flecha
-                jugador_x_cambio = -0.2
+                jugador_x_cambio = -2
             # Si presiona la tecla flecha izquierda
             if evento.key == pygame.K_RIGHT:
                 # La nave se mueve a la derecha cuando presione la flecha
-                jugador_x_cambio = 0.2
+                jugador_x_cambio = 2
+            if evento.key == pygame.K_SPACE:
+                if not balaVisible:
+                    balaX = jugadorX
+                    dispararBala(balaX, balaY)
         # * Evento para soltarss teclas
         # Si el usuario suela una tecla        
         if evento.type == pygame.KEYUP:
@@ -93,14 +117,22 @@ while seEjecuta:
     # ! Mantener dentro de los bordes al enemigo
     # Si el enemigo llega a posicion 0, entonces se devuelve
     if enemigoX <= 0:
-        enemigo_x_cambio = 0.3
+        enemigo_x_cambio = 2
         # Baja el valor que tiene enemigo_y_cambio
         enemigoY += enemigo_y_cambio 
     # Si el enemigo llega a posicion 736, entonces se devuelve
     elif enemigoX >= 736:
-        enemigo_x_cambio = -0.3
+        enemigo_x_cambio = -2
         # Baja el valor que tiene enemigo_y_cambio
         enemigoY += enemigo_y_cambio 
+    
+    # ! Movimiento bala
+    if balaY <= -64:
+        balaY = 500
+        balaVisible = False
+    if balaVisible:
+        dispararBala(balaX, balaY)
+        balaY -= bala_y_cambio
     
     jugador(jugadorX, jugadorY)
     enemigo(enemigoX, enemigoY)
