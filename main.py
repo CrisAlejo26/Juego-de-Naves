@@ -1,5 +1,6 @@
 import pygame
 import random
+import math
 
 # ! Inicializar Pygame
 pygame.init()
@@ -27,14 +28,26 @@ jugador_x_cambio = 0
 
 # ! Enemigo
 # Cargo la imagen
-enemigoMalvado = pygame.image.load("enemigo.png")
+enemigoMalvado = []
 # Cargo las coordenadas maximas para el enemigo
-enemigoX = random.randint(0, 736)
-enemigoY = random.randint(50, 200)
+enemigoX = []
+enemigoY = []
 # Se devuelve cuando toca los bordes
-enemigo_x_cambio = 2
+enemigo_x_cambio = []
 # Lo que va a ir bajando
-enemigo_y_cambio = 50
+enemigo_y_cambio = []
+cantidadEnemigos = 8
+
+for e in range(cantidadEnemigos):
+    # Cargo la imagen
+    enemigoMalvado.append(pygame.image.load("enemigo.png"))
+    # Cargo las coordenadas maximas para el enemigo
+    enemigoX.append(random.randint(0, 736))
+    enemigoY.append(random.randint(50, 200))
+    # Se devuelve cuando toca los bordes
+    enemigo_x_cambio.append(2)
+    # Lo que va a ir bajando
+    enemigo_y_cambio.append(50)
 
 # ! Bala
 # Cargo la imagen
@@ -45,8 +58,19 @@ balaY = 500
 # Se devuelve cuando toca los bordes
 bala_x_cambio = 0
 # Velocidad de la bala
-bala_y_cambio = 2
+bala_y_cambio = 3
 balaVisible = False
+
+# ! Puntaje
+puntaje = 0
+fuente = pygame.font.Font("freesansbold.ttf", 32)
+textoX = 10
+textY = 10
+
+# ! Funcion mostrar Puntaje
+def mostrarPuntaje(x, y):
+    texto = fuente.render(f"Puntaje: {puntaje}", True, (255, 255, 255))
+    pantalla.blit(texto, (x, y))
 
 # ! Funcion Jugador
 def jugador(x, y):
@@ -54,9 +78,9 @@ def jugador(x, y):
     pantalla.blit(jugadorPrincipal, (x, y))
     
 # ! Funcion Enemigo
-def enemigo(x, y):
+def enemigo(x, y, g):
     # Colocamos el enemigo en pantalla
-    pantalla.blit(enemigoMalvado, (x, y))
+    pantalla.blit(enemigoMalvado[g], (x, y))
 
 # ! Funcion disparar bala
 def dispararBala(x, y):
@@ -66,6 +90,15 @@ def dispararBala(x, y):
     # Esto se hace para que la bala salga desde la mitad de la nave
     pantalla.blit(imgBala, (x + 16, y + 10))
 
+# ! Funcion detectar colisiones
+
+def colisiones(x1, y1, x2, y2):
+    # Raiz cuaddrada y dentro un exponente
+    distancia = math.sqrt(math.pow(x1 - x2, 2) + math.pow(y2 - y1, 2))
+    if distancia < 27:
+        return True
+    else:
+        return False
 
 # ! Loop del juego
 seEjecuta = True
@@ -112,19 +145,31 @@ while seEjecuta:
     
         
     # ? Modificar la ubicacion del enemigo
-    enemigoX += enemigo_x_cambio
-    
-    # ! Mantener dentro de los bordes al enemigo
-    # Si el enemigo llega a posicion 0, entonces se devuelve
-    if enemigoX <= 0:
-        enemigo_x_cambio = 2
-        # Baja el valor que tiene enemigo_y_cambio
-        enemigoY += enemigo_y_cambio 
-    # Si el enemigo llega a posicion 736, entonces se devuelve
-    elif enemigoX >= 736:
-        enemigo_x_cambio = -2
-        # Baja el valor que tiene enemigo_y_cambio
-        enemigoY += enemigo_y_cambio 
+    for e in range(cantidadEnemigos):
+        enemigoX[e] += enemigo_x_cambio[e]
+        
+        # ! Mantener dentro de los bordes al enemigo
+        # Si el enemigo llega a posicion 0, entonces se devuelve
+        if enemigoX[e] <= 0:
+            enemigo_x_cambio[e] = 2
+            # Baja el valor que tiene enemigo_y_cambio
+            enemigoY[e] += enemigo_y_cambio[e] 
+        # Si el enemigo llega a posicion 736, entonces se devuelve
+        elif enemigoX[e] >= 736:
+            enemigo_x_cambio[e] = -2
+            # Baja el valor que tiene enemigo_y_cambio
+            enemigoY[e] += enemigo_y_cambio[e] 
+            
+        # ! Colision
+        coli = colisiones(enemigoX[e], enemigoY[e], balaX, balaY)
+        if coli:
+            balaY = 500
+            balaVisible = False
+            puntaje += 1
+            enemigoX[e] = random.randint(0, 736)
+            enemigoY[e] = random.randint(50, 200)
+        
+        enemigo(enemigoX[e], enemigoY[e], e)
     
     # ! Movimiento bala
     if balaY <= -64:
@@ -135,7 +180,7 @@ while seEjecuta:
         balaY -= bala_y_cambio
     
     jugador(jugadorX, jugadorY)
-    enemigo(enemigoX, enemigoY)
+    mostrarPuntaje(textoX, textY)
     
     # ! Actualizar siempre al final del ciclo
     pygame.display.update()
